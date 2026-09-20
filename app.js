@@ -1,44 +1,44 @@
 let recipes = [];
-let isLoggedIn = false;
 
-document.addEventListener('DOMContentLoaded', function() {
+function init() {
     const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const addBtn = document.getElementById('addRecipeBtn');
+    const generateBtn = document.getElementById('generatePlanBtn');
+    
     if (loginBtn) {
-        loginBtn.addEventListener('click', function() {
+        loginBtn.onclick = function() {
             const name = prompt('Enter a name for your recipe collection:');
-            if (name) {
-                localStorage.setItem('username', name);
-                initializeApp();
+            if (name && name.trim()) {
+                localStorage.setItem('username', name.trim());
+                showLoggedIn();
             }
-        });
+        };
     }
     
-    const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
+        logoutBtn.onclick = function() {
             localStorage.removeItem('username');
             localStorage.removeItem('recipes');
             location.reload();
-        });
+        };
     }
     
-    const addBtn = document.getElementById('addRecipeBtn');
     if (addBtn) {
-        addBtn.addEventListener('click', addRecipe);
+        addBtn.onclick = addRecipe;
     }
     
-    const generateBtn = document.getElementById('generatePlanBtn');
     if (generateBtn) {
-        generateBtn.addEventListener('click', generateMealPlan);
+        generateBtn.onclick = generateMealPlan;
     }
     
     const username = localStorage.getItem('username');
     if (username) {
-        initializeApp();
+        showLoggedIn();
     }
-});
+}
 
-function initializeApp() {
+function showLoggedIn() {
     document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('logoutBtn').style.display = 'block';
     document.getElementById('mainContent').style.display = 'block';
@@ -129,38 +129,3 @@ function generateMealPlan() {
         div.className = 'meal-day';
         div.innerHTML = `
             <div class="meal-day-header">${days[i]}</div>
-            <div class="meal-day-recipe"><a href="${r.link}" target="_blank">${r.link}</a></div>
-        `;
-        mealPlanDiv.appendChild(div);
-    });
-    
-    alert('Meal plan generated!');
-}
-
-// Initialize on page load
-window.addEventListener('load', () => {
-    // Check if already logged in
-    const username = localStorage.getItem('username');
-    if (username) {
-        initializeApp();
-    }
-    
-    // Handle Android share intent
-    const params = new URLSearchParams(window.location.search);
-    const sharedUrl = params.get('url') || params.get('text');
-    
-    if (sharedUrl && username) {
-        setTimeout(() => {
-            const recipeField = document.getElementById('recipeLink');
-            if (recipeField) {
-                recipeField.value = sharedUrl;
-                recipeField.focus();
-            }
-        }, 300);
-    }
-    
-    // Register service worker for PWA
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-});
