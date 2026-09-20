@@ -1,2 +1,4 @@
-# recipe-meal-planner
-A web app to manage recipes and generate weekly meal plans with grocery lists
+Go to the files I provided earlier
+Click on "index.html"
+Copy all the code
+Paste it into GitHub
