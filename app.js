@@ -136,3 +136,31 @@ function generateMealPlan() {
     
     alert('Meal plan generated!');
 }
+
+// Initialize on page load
+window.addEventListener('load', () => {
+    // Check if already logged in
+    const username = localStorage.getItem('username');
+    if (username) {
+        initializeApp();
+    }
+    
+    // Handle Android share intent
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = params.get('url') || params.get('text');
+    
+    if (sharedUrl && username) {
+        setTimeout(() => {
+            const recipeField = document.getElementById('recipeLink');
+            if (recipeField) {
+                recipeField.value = sharedUrl;
+                recipeField.focus();
+            }
+        }, 300);
+    }
+    
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+});
