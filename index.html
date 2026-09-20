@@ -1,4 +1,82 @@
-Go to the files I provided earlier
-Click on "index.html"
-Copy all the code
-Paste it into GitHub
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Meal Planner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Meal Planner</h1>
+            <button id="loginBtn" class="btn btn-primary">Sign in</button>
+            <button id="logoutBtn" class="btn btn-secondary" style="display:none;">Sign Out</button>
+        </header>
+
+        <!-- Auth Status -->
+        <div id="authStatus" class="auth-status"></div>
+
+        <!-- Main Content (hidden until logged in) -->
+        <main id="mainContent" style="display:none;">
+            
+            <!-- Add Recipe Section -->
+            <section class="section">
+                <h2>Add Recipe</h2>
+                <div class="form-group">
+                    <label for="recipeLink">Recipe Link or Title</label>
+                    <input type="text" id="recipeLink" placeholder="Paste recipe URL or name..." class="input">
+                </div>
+                <div class="form-group">
+                    <label for="recipeCategory">Category (optional)</label>
+                    <select id="recipeCategory" class="input">
+                        <option value="">Select...</option>
+                        <option value="pasta">Pasta</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="protein">High Protein</option>
+                        <option value="quick">Quick</option>
+                        <option value="slow-cooker">Slow Cooker</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button id="addRecipeBtn" class="btn btn-primary">Add Recipe</button>
+            </section>
+
+            <!-- Recipe List -->
+            <section class="section">
+                <h2>Your Recipes (<span id="recipeCount">0</span>)</h2>
+                <div id="recipeList" class="recipe-list"></div>
+            </section>
+
+            <!-- Meal Plan Generator -->
+            <section class="section">
+                <h2>Generate Weekly Meal Plan</h2>
+                <div class="form-group">
+                    <label for="planConstraints">Any special constraints for this week?</label>
+                    <textarea id="planConstraints" placeholder="e.g., 'No red meat this week' or 'Extra high protein'" class="input" rows="2"></textarea>
+                </div>
+                <button id="generatePlanBtn" class="btn btn-primary">Generate This Week's Plan</button>
+            </section>
+
+            <!-- Meal Plan Display -->
+            <section id="mealPlanSection" class="section" style="display:none;">
+                <h2>This Week's Dinners</h2>
+                <div id="mealPlan" class="meal-plan"></div>
+                
+                <h2>Grocery List</h2>
+                <button id="downloadGroceryBtn" class="btn btn-secondary">Download List</button>
+                <div id="groceryList" class="grocery-list"></div>
+            </section>
+
+        </main>
+
+        <!-- Login Prompt -->
+        <div id="loginPrompt" class="login-prompt">
+            <p>Sign in to get started.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
