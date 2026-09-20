@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="description" content="Manage recipes and generate weekly meal plans with grocery lists">
     <title>Recipe Meal Planner</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🍽️</text></svg>">
 </head>
 <body>
     <div class="container">
@@ -55,28 +59,3 @@
                 <div class="form-group">
                     <label for="planConstraints">Any special constraints for this week?</label>
                     <textarea id="planConstraints" placeholder="e.g., 'No red meat this week' or 'Extra high protein'" class="input" rows="2"></textarea>
-                </div>
-                <button id="generatePlanBtn" class="btn btn-primary">Generate This Week's Plan</button>
-            </section>
-
-            <!-- Meal Plan Display -->
-            <section id="mealPlanSection" class="section" style="display:none;">
-                <h2>This Week's Dinners</h2>
-                <div id="mealPlan" class="meal-plan"></div>
-                
-                <h2>Grocery List</h2>
-                <button id="downloadGroceryBtn" class="btn btn-secondary">Download List</button>
-                <div id="groceryList" class="grocery-list"></div>
-            </section>
-
-        </main>
-
-        <!-- Login Prompt -->
-        <div id="loginPrompt" class="login-prompt">
-            <p>Sign in to get started.</p>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-</body>
-</html>
