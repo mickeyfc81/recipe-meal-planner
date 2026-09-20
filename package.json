@@ -1,4 +1,17 @@
-Go to the files I provided earlier
-Click on "index.html"
-Copy all the code
-Paste it into GitHub
+{
+  "name": "recipe-meal-planner",
+  "version": "1.0.0",
+  "description": "A simple web app to manage recipes and generate weekly meal plans with grocery lists",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "build": "echo 'No build step needed'"
+  },
+  "keywords": ["recipes", "meal-planning", "grocery-list"],
+  "author": "Mickey Fitch-Collins",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
