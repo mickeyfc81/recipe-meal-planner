@@ -1,75 +1,138 @@
 let recipes = [];
-let lastMealPlan = [];
 let isLoggedIn = false;
 
-// ==================== AUTH ====================
-document.getElementById('loginBtn').addEventListener('click', () => {
-    const username = prompt('Enter a name for your recipe collection:');
-    if (username && username.trim()) {
-        localStorage.setItem('username', username.trim());
-        loginUser();
+document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function() {
+            const name = prompt('Enter a name for your recipe collection:');
+            if (name) {
+                localStorage.setItem('username', name);
+                initializeApp();
+            }
+        });
+    }
+    
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('recipes');
+            location.reload();
+        });
+    }
+    
+    const addBtn = document.getElementById('addRecipeBtn');
+    if (addBtn) {
+        addBtn.addEventListener('click', addRecipe);
+    }
+    
+    const generateBtn = document.getElementById('generatePlanBtn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateMealPlan);
+    }
+    
+    const username = localStorage.getItem('username');
+    if (username) {
+        initializeApp();
     }
 });
 
-function loginUser() {
-    isLoggedIn = true;
-    const username = localStorage.getItem('username') || 'Recipe Lover';
-    
+function initializeApp() {
     document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('logoutBtn').style.display = 'block';
     document.getElementById('mainContent').style.display = 'block';
     document.getElementById('loginPrompt').style.display = 'none';
-    document.getElementById('authStatus').innerHTML = `<span style="color: #155724;">Welcome, ${escapeHtml(username)}! Your recipes are saved on this device.</span>`;
-    
     loadRecipes();
 }
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    isLoggedIn = false;
-    recipes = [];
-    localStorage.removeItem('username');
-    localStorage.removeItem('recipes');
-    
-    document.getElementById('loginBtn').style.display = 'block';
-    document.getElementById('logoutBtn').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'none';
-    document.getElementById('loginPrompt').style.display = 'block';
-    document.getElementById('authStatus').innerHTML = '';
-});
-
-// ==================== RECIPE MANAGEMENT ====================
-document.getElementById('addRecipeBtn').addEventListener('click', addRecipe);
-
-async function addRecipe() {
+function addRecipe() {
     const link = document.getElementById('recipeLink').value.trim();
     const category = document.getElementById('recipeCategory').value;
-
+    
     if (!link) {
-        showStatus('Please enter a recipe link or name', 'error');
+        alert('Please enter a recipe link or name');
         return;
     }
-
-    const recipe = {
-        link,
-        category,
-        dateAdded: new Date().toLocaleDateString(),
-        id: Date.now()
-    };
-
-    recipes.push(recipe);
-    await saveRecipesToSheet(recipes);
     
+    const recipe = {
+        id: Date.now(),
+        link: link,
+        category: category
+    };
+    
+    recipes.push(recipe);
+    localStorage.setItem('recipes', JSON.stringify(recipes));
     document.getElementById('recipeLink').value = '';
     document.getElementById('recipeCategory').value = '';
-    
     renderRecipeList();
-    showStatus('Recipe added!', 'success');
-}
-
-async function saveRecipesToSheet(recipesToSave) {
-    localStorage.setItem('recipes', JSON.stringify(recipesToSave));
+    alert('Recipe added!');
 }
 
 function loadRecipes() {
     const saved = localStorage.getItem('recipes');
     recipes = saved ? JSON.parse(saved) : [];
+    renderRecipeList();
+}
+
+function renderRecipeList() {
+    const list = document.getElementById('recipeList');
+    const count = document.getElementById('recipeCount');
+    
+    list.innerHTML = '';
+    count.textContent = recipes.length;
+    
+    if (recipes.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:#999;">No recipes yet. Add one to get started!</p>';
+        return;
+    }
+    
+    recipes.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'recipe-item';
+        item.innerHTML = `
+            <div class="recipe-item-info">
+                <div class="recipe-item-title">${r.link}</div>
+                <div class="recipe-item-category">${r.category || 'Other'}</div>
+            </div>
+            <button class="btn btn-danger" onclick="removeRecipe(${r.id})">Delete</button>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function removeRecipe(id) {
+    recipes = recipes.filter(r => r.id !== id);
+    localStorage.setItem('recipes', JSON.stringify(recipes));
+    renderRecipeList();
+}
+
+function generateMealPlan() {
+    if (recipes.length < 7) {
+        alert('You need at least 7 recipes. You have ' + recipes.length);
+        return;
+    }
+    
+    const shuffled = [...recipes].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 7);
+    
+    const mealPlanSection = document.getElementById('mealPlanSection');
+    const mealPlanDiv = document.getElementById('mealPlan');
+    
+    mealPlanSection.style.display = 'block';
+    mealPlanDiv.innerHTML = '';
+    
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+    selected.forEach((r, i) => {
+        const div = document.createElement('div');
+        div.className = 'meal-day';
+        div.innerHTML = `
+            <div class="meal-day-header">${days[i]}</div>
+            <div class="meal-day-recipe"><a href="${r.link}" target="_blank">${r.link}</a></div>
+        `;
+        mealPlanDiv.appendChild(div);
+    });
+    
+    alert('Meal plan generated!');
+}
