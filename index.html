@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🍽️</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -25,6 +26,16 @@
         <!-- Main Content (hidden until logged in) -->
         <main id="mainContent" style="display:none;">
             
+            <!-- Bulk Import Section -->
+            <section class="section">
+                <h2>Bulk Import Recipes</h2>
+                <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 10px;">Upload an Excel file with recipes. Column A = Recipe Name, Column B = Recipe Link</p>
+                <div class="form-group">
+                    <input type="file" id="bulkFile" accept=".xlsx,.xls" class="input">
+                </div>
+                <button class="btn btn-primary" onclick="bulkImport()">Import from Excel</button>
+            </section>
+
             <!-- Add Recipe Section -->
             <section class="section">
                 <h2>Add Recipe</h2>
@@ -96,6 +107,48 @@
             localStorage.removeItem('username');
             localStorage.removeItem('recipes');
             location.reload();
+        }
+
+        function bulkImport() {
+            const file = document.getElementById('bulkFile').files[0];
+            if (!file) {
+                alert('Please select an Excel file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const workbook = XLSX.read(e.target.result, {type: 'binary'});
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const data = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                    
+                    let imported = 0;
+                    data.forEach((row, index) => {
+                        if (index === 0) return; // Skip header if present
+                        if (row[0] && row[1]) {
+                            recipes.push({
+                                id: Date.now() + imported,
+                                link: row[1].toString().trim(),
+                                category: 'other'
+                            });
+                            imported++;
+                        }
+                    });
+
+                    if (imported > 0) {
+                        localStorage.setItem('recipes', JSON.stringify(recipes));
+                        renderRecipeList();
+                        document.getElementById('bulkFile').value = '';
+                        alert(`Imported ${imported} recipes!`);
+                    } else {
+                        alert('No valid recipes found. Make sure Column A has names and Column B has links.');
+                    }
+                } catch (err) {
+                    alert('Error reading file: ' + err.message);
+                }
+            };
+            reader.readAsBinaryString(file);
         }
 
         function addRecipe() {
