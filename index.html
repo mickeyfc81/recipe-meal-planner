@@ -15,8 +15,8 @@
         <!-- Header -->
         <header class="header">
             <h1>Meal Planner</h1>
-            <button id="loginBtn" class="btn btn-primary">Sign in</button>
-            <button id="logoutBtn" class="btn btn-secondary" style="display:none;">Sign Out</button>
+            <button class="btn btn-primary" onclick="doLogin()">Sign in</button>
+            <button class="btn btn-secondary" onclick="doLogout()" style="display:none;" id="logoutBtn">Sign Out</button>
         </header>
 
         <!-- Auth Status -->
@@ -44,7 +44,7 @@
                         <option value="other">Other</option>
                     </select>
                 </div>
-                <button id="addRecipeBtn" class="btn btn-primary">Add Recipe</button>
+                <button class="btn btn-primary" onclick="addRecipe()">Add Recipe</button>
             </section>
 
             <!-- Recipe List -->
@@ -59,3 +59,115 @@
                 <div class="form-group">
                     <label for="planConstraints">Any special constraints for this week?</label>
                     <textarea id="planConstraints" placeholder="e.g., 'No red meat this week' or 'Extra high protein'" class="input" rows="2"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="generateMealPlan()">Generate This Week's Plan</button>
+            </section>
+
+            <!-- Meal Plan Display -->
+            <section id="mealPlanSection" class="section" style="display:none;">
+                <h2>This Week's Dinners</h2>
+                <div id="mealPlan" class="meal-plan"></div>
+                
+                <h2>Grocery List</h2>
+                <button class="btn btn-secondary">Download List</button>
+                <div id="groceryList" class="grocery-list"></div>
+            </section>
+
+        </main>
+
+        <!-- Login Prompt -->
+        <div id="loginPrompt" class="login-prompt">
+            <p>Sign in to get started.</p>
+        </div>
+    </div>
+
+    <script>
+        let recipes = [];
+
+        function doLogin() {
+            const name = prompt('Enter a name for your recipe collection:');
+            if (name && name.trim()) {
+                localStorage.setItem('username', name.trim());
+                showApp();
+            }
+        }
+
+        function doLogout() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('recipes');
+            location.reload();
+        }
+
+        function addRecipe() {
+            const link = document.getElementById('recipeLink').value.trim();
+            const category = document.getElementById('recipeCategory').value;
+            if (!link) {
+                alert('Please enter a recipe link or name');
+                return;
+            }
+            recipes.push({id: Date.now(), link: link, category: category});
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+            document.getElementById('recipeLink').value = '';
+            document.getElementById('recipeCategory').value = '';
+            renderRecipeList();
+            alert('Recipe added!');
+        }
+
+        function removeRecipe(id) {
+            recipes = recipes.filter(r => r.id !== id);
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+            renderRecipeList();
+        }
+
+        function renderRecipeList() {
+            const list = document.getElementById('recipeList');
+            list.innerHTML = '';
+            document.getElementById('recipeCount').textContent = recipes.length;
+            if (recipes.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#999;">No recipes yet. Add one to get started!</p>';
+                return;
+            }
+            recipes.forEach(r => {
+                const item = document.createElement('div');
+                item.className = 'recipe-item';
+                item.innerHTML = `<div class="recipe-item-info"><div class="recipe-item-title">${r.link}</div><div class="recipe-item-category">${r.category || 'Other'}</div></div><button class="btn btn-danger" onclick="removeRecipe(${r.id})">Delete</button>`;
+                list.appendChild(item);
+            });
+        }
+
+        function loadRecipes() {
+            const saved = localStorage.getItem('recipes');
+            recipes = saved ? JSON.parse(saved) : [];
+            renderRecipeList();
+        }
+
+        function generateMealPlan() {
+            if (recipes.length < 7) {
+                alert('You need at least 7 recipes. You have ' + recipes.length);
+                return;
+            }
+            const shuffled = [...recipes].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, 7);
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            document.getElementById('mealPlanSection').style.display = 'block';
+            document.getElementById('mealPlan').innerHTML = selected.map((r, i) => `<div class="meal-day"><div class="meal-day-header">${days[i]}</div><div class="meal-day-recipe"><a href="${r.link}" target="_blank">${r.link}</a></div></div>`).join('');
+            alert('Meal plan generated!');
+        }
+
+        function showApp() {
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('loginPrompt').style.display = 'none';
+            loadRecipes();
+        }
+
+        window.addEventListener('load', () => {
+            const username = localStorage.getItem('username');
+            if (username) {
+                showApp();
+            }
+        });
+    </script>
+</body>
+</html>
